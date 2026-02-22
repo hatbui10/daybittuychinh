@@ -27,12 +27,14 @@ body {
     border: 1px solid #334155;
 }
 
-h3 {
-    margin-bottom: 12px;
-}
+h3 { margin-bottom: 15px; }
 
 .control-group {
     margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 #inputs {
@@ -41,6 +43,15 @@ h3 {
     margin-bottom: 20px;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+input[type="number"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #020617;
+    color: #e5e7eb;
+    width: 170px;
 }
 
 input.bit {
@@ -78,55 +89,31 @@ button:hover {
     box-shadow: 0 6px 14px rgba(0,0,0,0.2);
 }
 
-button:active {
-    transform: scale(0.97);
-}
+button:active { transform: scale(0.97); }
 
-#result {
-    margin-top: 20px;
-    font-size: 26px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    color: #22c55e;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    padding: 15px 25px;
-    border-radius: 12px;
-    border: 1px solid #334155;
-    box-shadow:
-        0 0 10px rgba(34,197,94,0.4),
-        0 0 25px rgba(34,197,94,0.2),
-        inset 0 0 10px rgba(34,197,94,0.1);
-    transition: 0.3s ease;
-}
-
-.button1 {
-    padding: 12px 18px;
-    background: #16a34a;
-    border-radius: 10px;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 20px;
-    display: inline-block;
-    transition: 0.2s ease;
-}
-
-.button1:hover {
-    background: #22c55e;
-    transform: translateY(-2px);
-}
-
-/* Tô màu các ô 1,5,9,13,... nếu tính từ 1 */
-#inputs input.bit:nth-child(4n+1) {
-    border-color: #f59e0b;
+.highlight {
+    border-color: #f59e0b !important;
     background: #1e293b;
     box-shadow: 0 0 8px rgba(245,158,11,0.5);
 }
 
+#result {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #22c55e;
+}
 
-
-
-
+.button1 {
+    padding: 10px 16px;
+    background: #16a34a;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    margin-top: 15px;
+    display: inline-block;
+}
+.button1:hover { background: #22c55e; }
 
 </style>
 </head>
@@ -137,13 +124,14 @@ button:active {
     <h3>Nhập bit (0 / 1)</h3>
 
     <div class="control-group">
-        <input type="number" id="countInput" min="1" placeholder="Nhập số ô hiển thị">
-        <button type="button" onclick="init()">Tạo ô</button>
+        <input type="number" id="countInput" min="1" placeholder="Số ô hiển thị">
+        <input type="number" id="stepInput" min="1" placeholder="Bước tô màu (vd: 4)">
+        <button onclick="init()">Tạo ô</button>
     </div>
 
     <div id="inputs"></div>
 
-    <button type="button" onclick="predict()">Tính bit tiếp theo</button>
+    <button onclick="predict()">Tính bit tiếp theo</button>
     <div class="button1" onclick="resetAll()">Reset</div>
 
     <div id="result"></div>
@@ -154,23 +142,21 @@ const inputsDiv = document.getElementById("inputs");
 let inputCount = 0;
 let displayCount = 0;
 
-// ===== KHỞI TẠO =====
 function init() {
     inputsDiv.innerHTML = "";
     inputCount = 0;
 
     displayCount = parseInt(document.getElementById("countInput").value);
-
     if (!displayCount || displayCount < 1) {
-        alert("Nhập số hợp lệ đi bạn ơi");
+        alert("Nhập số hợp lệ");
         return;
     }
 
     for (let i = 0; i < displayCount; i++) {
         const inp = document.createElement("input");
         inp.className = "bit";
-        inp.maxLength = 1;
         inp.readOnly = true;
+        inp.maxLength = 1;
         inputsDiv.appendChild(inp);
     }
 
@@ -200,9 +186,10 @@ function init() {
 
     inputsDiv.appendChild(inputBox);
     inputBox.focus();
+
+    highlightCustom();
 }
 
-// ===== SHIFT =====
 function shiftLeft(newBit) {
     const inputs = inputsDiv.querySelectorAll("input");
     for (let i = 0; i < displayCount - 1; i++) {
@@ -211,7 +198,6 @@ function shiftLeft(newBit) {
     inputs[displayCount - 1].value = newBit;
 }
 
-// ===== PREDICT =====
 function predict() {
     const inputs = [...inputsDiv.querySelectorAll("input")]
         .slice(0, displayCount)
@@ -225,33 +211,27 @@ function predict() {
 
     document.getElementById("result").innerText =
         "Chuỗi hiện tại: " + inputs;
-
-    const all = inputsDiv.querySelectorAll("input");
-    if (all[displayCount]) {
-        all[displayCount].focus();
-    }
 }
 
-// ===== RESET =====
+function highlightCustom() {
+    const step = parseInt(document.getElementById("stepInput").value);
+    if (!step || step < 1) return;
+
+    const inputs = inputsDiv.querySelectorAll("input.bit");
+
+    inputs.forEach((inp, index) => {
+        if (index % step === 0) {
+            inp.classList.add("highlight");
+        }
+    });
+}
+
 function resetAll() {
     inputsDiv.innerHTML = "";
     document.getElementById("result").innerText = "";
     document.getElementById("countInput").value = "";
     inputCount = 0;
 }
-
-
-
-
-// Focus ô nhập sau khi trang load (nếu đã có)
-window.addEventListener("load", () => {
-    const inputs = inputsDiv.querySelectorAll("input");
-
-    if (inputs.length > 0) {
-        // ô nhập luôn nằm cuối
-        inputs[inputs.length - 1].focus();
-    }
-});
 </script>
 
 </body>
