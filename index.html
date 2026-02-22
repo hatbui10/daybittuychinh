@@ -227,13 +227,20 @@ function highlightCustom() {
 }
 
 function resetAll() {
-    inputsDiv.innerHTML = "";
+    const inputs = inputsDiv.querySelectorAll("input.bit");
+
+    inputs.forEach((inp, index) => {
+        if (index < displayCount) {
+            inp.value = "";
+        }
+    });
+
     document.getElementById("result").innerText = "";
-    document.getElementById("countInput").value = "";
     inputCount = 0;
 }
 </script>
 
 </body>
 </html>
+
 
