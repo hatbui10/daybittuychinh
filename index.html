@@ -126,8 +126,9 @@ button:active { transform: scale(0.97); }
     <div class="control-group">
         <input type="number" id="countInput" min="1" placeholder="Số ô hiển thị">
         <input type="number" id="stepInput" min="1" placeholder="Bước tô màu (vd: 4)">
-        <button onclick="init()">Tạo ô</button>
-    </div>
+       <button id="createBtn" onclick="init()">Tạo ô</button>
+       
+           </div>
 
     <div id="inputs"></div>
 
@@ -227,8 +228,10 @@ function highlightCustom() {
 }
 
 function resetAll() {
+
     const inputs = inputsDiv.querySelectorAll("input.bit");
 
+    // Xoá giá trị các ô hiển thị
     inputs.forEach((inp, index) => {
         if (index < displayCount) {
             inp.value = "";
@@ -237,7 +240,61 @@ function resetAll() {
 
     document.getElementById("result").innerText = "";
     inputCount = 0;
+
+    // Focus vào ô nhập cuối cùng (ô cho nhập 0/1)
+    if (inputs.length > 0) {
+        const inputBox = inputs[inputs.length - 1];
+        inputBox.focus();
+    }
 }
+
+
+
+
+window.addEventListener("load", function () {
+
+    const countInput = document.getElementById("countInput");
+    const stepInput = document.getElementById("stepInput");
+    const createBtn = document.getElementById("createBtn");
+
+    // Focus ban đầu
+    setTimeout(() => {
+        countInput.focus();
+    }, 0);
+
+    let countTimer = null;
+    let stepTimer = null;
+
+    // Khi nhập số ô → đợi 1s rồi sang bước tô màu
+    countInput.addEventListener("input", function () {
+
+        if (countTimer) clearTimeout(countTimer);
+
+        if (this.value && parseInt(this.value) > 0) {
+            countTimer = setTimeout(() => {
+                stepInput.focus();
+            }, 1000);
+        }
+
+    });
+
+    // Khi nhập bước tô màu → đợi 1s rồi sang nút tạo ô
+    stepInput.addEventListener("input", function () {
+
+        if (stepTimer) clearTimeout(stepTimer);
+
+        if (this.value && parseInt(this.value) > 0) {
+            stepTimer = setTimeout(() => {
+                createBtn.focus();
+            }, 1000);
+        }
+
+    });
+
+});
+
+
+
 </script>
 
 </body>
